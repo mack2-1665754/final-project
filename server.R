@@ -37,4 +37,35 @@ shinyServer(function(input, output) {
       geom_point(mapping = aes(x = percent_race_deaths, y = mean_pop_share, color = mean_pov))
     plot
   })
+  output$death_cause <- renderPlotly({
+    death_data <- police_killings %>%
+      select(cause, armed, state, name, age) %>%
+      filter(state == input$select_state)%>%
+      group_by(cause, armed, state) %>%
+      count()
+    title <- paste0("Cause of Death and Arming of the Victim in ", input$select_state)
+    death_plot <- plot_ly(
+      data = death_data,
+      x = ~cause,
+      y = ~n,
+      color = ~armed,
+      type = "bar",
+      alpha = .7) %>%
+      layout(
+        title = title,
+        xaxis = list(title = "Cause of Death"),
+        yaxis = list(title = "Total Deaths"),
+        legend = c("Armed"),
+        showlegend = T,
+        barmode = "stack"
+      )
+    death_plot
+  })
+  output$message <- renderText({
+    death_sum <- death_data %>%
+      filter(state == input$select_state)%>%
+      group_by(state) %>%
+      summarise(state_total = sum(n))
+    msg <- paste("In ", input$select_state, "there were a total of ", death_sum$state_total, " deaths by a police officer.")
+  })
 })
