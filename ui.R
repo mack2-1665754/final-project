@@ -1,43 +1,48 @@
+# Load Packages
 library(shiny)
 library(dplyr)
 library(ggplot2)
-shootings_data <- read.csv("data/police_killings.csv")
+library(plotly)
+
+# Read in Data
+police_killings <- read.csv("police_killings.csv", stringsAsFactors = F)
+
+
 # Page one: Intro Page
-page_one <- tabPanel(
-  "Does Police Brutality Have to do With Poverty Rates?",
-  titlePanel("Racial Distribution by State"),
+
+
+#Page 3: Ali's Page
+page_3 <- shinyUI(navbarPage(
+  "Police Killings",
+  tabPanel("Map of Police Killings in 2015",
+  titlePanel("Map of Police Killings in 2015"),
+  h5("This map shows victims of police killings in 2015. Below, you can colorize the data through either gender, 
+     race/ethnicity or cause of death. Hovering over data points on the map will display the victims name, ethnicity, gender,
+     age and cause of death."),
   sidebarLayout(
     sidebarPanel(
       selectInput(
-        inputId = "chosen_share",
-        label = "Select A share",
-        choices = c(
-          "share_white",
-          "share_black",
-          "share_hispanic"
-        )
-      ),
-      selectInput (
-        inputId = "victim_race",
-        label = "Race of Victim",
-        choices = distinct(shootings_data, raceethnicity, .keep_all = FALSE)
+        inputId = "analysis",
+        label = "Select a unit of analysis",
+        choices = c("gender", "race" = "raceethnicity", "cause")
       )
     ),
     mainPanel(
-      plotOutput(outputId = "poverty_vs_police_brutality")
-    )
+      leafletOutput(outputId = "police_map"),
+      tableOutput((outputId = "police_table")))
   )
-)
+    ),
 
-#Page 3: Ali's Page
+
+
 
 #Page 2: Ken's Page
 
 #Page 4: Nick's Page
 
 #Page 5: Cass's Page
-page_two <- shinyUI(fluidPage(
-  "Cause of Death",
+  tabPanel(
+    "Cause of Death",
   titlePanel("Relationship Between Cause of Death and Arming of the Victim in 2015"),
   sidebarLayout(
     sidebarPanel(
@@ -88,11 +93,11 @@ page_two <- shinyUI(fluidPage(
                     "Washington" = "WA",
                     "West Virgina" = "WV",
                     "Wisconsin" = "WI")),
-      textOutput("message"),
       h5("In 2015, there were 467 deaths that were caused by a police officer. 
      On the side, you can analyze the incidents that happened in each state. 
         You will also be able to see if the victim was armed during the incident and what they were armed with.")
     ),
     mainPanel(
       plotlyOutput("death_cause"))
-  )))
+  ))))
+

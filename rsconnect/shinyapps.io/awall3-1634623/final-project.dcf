@@ -1,0 +1,13 @@
+name: final-project
+title: final-project
+username:
+account: awall3-1634623
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 785760
+bundleId: 1935313
+url: https://awall3-1634623.shinyapps.io/final-project/
+when: 1552444031.34832
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: data/desktop.ini

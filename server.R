@@ -1,42 +1,16 @@
+# Load Packages
 library(shiny)
 library(dplyr)
 library(ggplot2)
+library(plotly)
+library(devtools)
+library(stringr)
+library(leaflet)
 
+police_killings <- read.csv("police_killings.csv", stringsAsFactors = F)
+
+# Cassidy's Code
 shinyServer(function(input, output) {
-  output$poverty_vs_police_brutality <- renderPlot({
-    shootings_data <- read.csv("data/police_killings.csv", stringsAsFactors = FALSE)
-    
-    #PERCENT DEATHS OF A CHOSEN RACE, PER STATE
-    victim_race <- shootings_data %>% 
-      filter(raceethnicity == input$victim_race) %>% 
-      group_by(state) %>% 
-      count()
-    names(victim_race)[2] <- "num_race_victims"
-    deaths_by_state <- shootings_data %>% 
-      group_by(state) %>% 
-      count()
-    names(deaths_by_state)[2] <- "num_state_deaths"
-    
-    deaths_race_and_state <- left_join(victim_race, deaths_by_state)
-    deaths_race_and_state <- deaths_race_and_state %>% 
-      mutate(percent_race_deaths = num_race_victims / num_state_deaths * 100)
-    
-    #SHARE POPULATION BY STATE
-    state_share_race <- shootings_data %>%
-      group_by(state) %>% 
-      summarise(
-        mean_pop_share = mean(as.numeric(input$chosen_share), na.rm = TRUE),
-        mean_pov = mean(as.numeric(pov), na.rm = TRUE)
-      )
-    
-    #COMBINE THE TWO FINAL TABLES
-    chosen_data <- left_join(deaths_race_and_state, state_share_race)
-    
-    #CREATE
-    plot <- ggplot(data = chosen_data) +
-      geom_point(mapping = aes(x = percent_race_deaths, y = mean_pop_share, color = mean_pov))
-    plot
-  })
   output$death_cause <- renderPlotly({
     death_data <- police_killings %>%
       select(cause, armed, state, name, age) %>%
@@ -60,12 +34,39 @@ shinyServer(function(input, output) {
         barmode = "stack"
       )
     death_plot
+  }) # Ali's Code
+  output$police_map <- renderLeaflet({
+    palette1 <- colorFactor(
+      palette = "Dark2", 
+      domain = police_killings[[input$analysis]]
+    )
+    leaflet(data = police_killings) %>% 
+      addProviderTiles("OpenStreetMap.Mapnik") %>% 
+      addCircleMarkers(
+        lat = ~latitude,
+        lng = ~longitude,
+        label = ~paste0("Victim: ", name, ". ", raceethnicity, " ", gender, " age ", age, ". ", "Cause of death: ", cause, "."),
+        color = ~palette1(police_killings[[input$analysis]]),
+        fillOpacity = .5,
+        radius = 3,
+        stroke = F
+      ) %>% 
+      addLegend(
+        position = "bottomleft",
+        title = input$analysis,
+        pal = palette1,
+        values = police_killings[[input$analysis]],
+        opacity = 1
+      )
   })
-  output$message <- renderText({
-    death_sum <- death_data %>%
-      filter(state == input$select_state)%>%
-      group_by(state) %>%
-      summarise(state_total = sum(n))
-    msg <- paste("In ", input$select_state, "there were a total of ", death_sum$state_total, " deaths by a police officer.")
+  output$police_table <- renderTable({
+    table1 <- police_killings %>% 
+      group_by(police_killings[[input$analysis]]) %>% 
+      count()
+    colnames(table1) <- c(input$analysis, "Number of Victims")
+    table1
   })
 })
+
+
+
