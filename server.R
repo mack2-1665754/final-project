@@ -34,6 +34,13 @@ shinyServer(function(input, output) {
         barmode = "stack"
       )
     death_plot
+  })
+  output$message <- renderText({
+    death_sum <- death_data %>%
+      filter(state == input$select_state)%>%
+      group_by(state) %>%
+      summarise(state_total = sum(n))
+    msg <- paste("In ", input$select_state, "there were a total of ", death_sum$state_total, " deaths by a police officer.")
   }) # Ali's Code
   output$police_map <- renderLeaflet({
     palette1 <- colorFactor(

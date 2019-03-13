@@ -93,6 +93,7 @@ page_3 <- shinyUI(navbarPage(
                     "Washington" = "WA",
                     "West Virgina" = "WV",
                     "Wisconsin" = "WI")),
+      textOutput("message"),
       h5("In 2015, there were 467 deaths that were caused by a police officer. 
      On the side, you can analyze the incidents that happened in each state. 
         You will also be able to see if the victim was armed during the incident and what they were armed with.")
