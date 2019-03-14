@@ -7,7 +7,7 @@ library(devtools)
 library(stringr)
 library(leaflet)
 
-police_killings <- read.csv("police_killings.csv", stringsAsFactors = F)
+police_killings <- read.csv("data/police_killings.csv", stringsAsFactors = F)
 
 # Cassidy's Code
 shinyServer(function(input, output) {
