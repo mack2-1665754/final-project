@@ -72,6 +72,55 @@ shinyServer(function(input, output) {
       count()
     colnames(table1) <- c(input$analysis, "Number of Victims")
     table1
+  }) #Nick's Code
+  output$classplot <- renderLeaflet({
+    color_palette <- colorFactor(
+      palette = "RdYlBu",
+      domain = police_killings$raceethnicity
+    )
+    
+    if(input$class == "All"){
+      msg <- paste0("In the United States in 2015, there were ", nrow(police_killings), " police killings")
+    } else if(input$class == "poor"){
+      police_killings <- police_killings %>% 
+        filter(h_income < 30000)
+      msg <- paste0("In the United States in 2015, there were ", nrow(police_killings), 
+                    " police killings within the poverished class")
+    } else if(input$class == "low"){
+      police_killings <- police_killings %>% 
+        filter(h_income >= 30000 & h_income < 50000)
+      msg <- paste0("In the United States in 2015, there were ", nrow(police_killings), 
+                    " police killings within the lower-middle class")
+    } else if(input$class == "middle"){
+      police_killings <- police_killings %>% 
+        filter(h_income >= 50000 & h_income < 100000)
+      msg <- paste0("In the United States in 2015, there were ", nrow(police_killings), 
+                    " police killings within the middle class")
+    } else if(input$class == "upper"){
+      police_killings <- police_killings %>% 
+        filter(h_income >= 100000 & h_income < 350000)
+      msg <- paste0("In the United States in 2015, there were ", nrow(police_killings), 
+                    " police killings within the upper-middle class")
+    }
+    
+    leaflet(data = police_killings) %>% 
+      addProviderTiles("OpenStreetMap.Mapnik") %>% 
+      addCircleMarkers(
+        lat = ~latitude,
+        lng = ~longitude,
+        label = ~paste(name, "," , age, "," , gender, "," , "House Income:", h_income),
+        color = ~color_palette(police_killings$raceethnicity),
+        fillOpacity = .5,
+        radius = 3,
+        stroke = F
+      ) %>% 
+      addLegend(
+        position = "bottomright",
+        title = "Race",
+        pal = color_palette,
+        values = police_killings$raceethnicity,
+        opacity = 1
+      )
   })
 })
 

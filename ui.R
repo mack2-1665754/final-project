@@ -6,7 +6,7 @@ library(plotly)
 library(leaflet)
 
 # Read in Data
-police_killings <- read.csv("police_killings.csv", stringsAsFactors = F)
+police_killings <- read.csv("data/police_killings.csv", stringsAsFactors = F)
 
 
 # Page one: Intro Page
@@ -97,6 +97,28 @@ page_3 <- shinyUI(navbarPage(
 #Page 2: Ken's Page
 
 #Page 4: Nick's Page
+tabPanel("Deaths in Each Economic Class",
+titlePanel("Deaths by Economic Class"),
+sidebarLayout(
+  sidebarPanel(
+    selectInput("class",
+                "Which economic class?",
+                choices = c(
+                  "All",
+                  "Poverished Class [$0-30,000)" = "poor",
+                  "Lower-Middle Class [$30,000-50,000)" = "low",
+                  "Middle Class [$50,000-100,000)" = "middle",
+                  "Upper-Middle Class [$100,000-350,000)" = "upper"
+                ),
+                selected = "All"
+    ),
+    p("Note: There were no police killings within the Upper Class ($350,000 & more)")
+  ),
+  mainPanel(
+    leafletOutput("classplot")
+  )
+)
+),
 
 #Page 5: Cass's Page
   tabPanel(
